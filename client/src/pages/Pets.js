@@ -9,6 +9,22 @@ import Loader from '../components/Loader'
 export default function Pets () {
   const [modal, setModal] = useState(false)
 
+  const query = gql`
+  query getPets{
+    pets{
+      id
+      type
+      name
+      img
+      createdAt
+    }
+  }
+  `
+  const { data, loading, error } = useQuery(query);
+  
+  if(loading){ return <Loader /> }
+
+  if(error){ return <h2>Error Occurred</h2> }
 
   const onSubmit = input => {
     setModal(false)
@@ -32,7 +48,7 @@ export default function Pets () {
         </div>
       </section>
       <section>
-        <PetsList />
+        <PetsList pets={ data.pets }/>
       </section>
     </div>
   )

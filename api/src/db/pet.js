@@ -1,3 +1,4 @@
+const { stringify } = require('json5')
 const nanoid = require('nanoid')
 
 const createPetModel = db => {
@@ -16,7 +17,7 @@ const createPetModel = db => {
     },
 
     create(pet) {
-      const newPet = {id: nanoid(), createdAt: Date.now(), ...pet}
+      const newPet = {id: nanoid(16), createdAt: stringify(Date.now()), ...pet}
       
       db.get('pet')
         .push(newPet)

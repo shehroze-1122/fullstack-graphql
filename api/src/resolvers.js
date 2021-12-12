@@ -18,6 +18,7 @@ module.exports = {
   },
   Pet: {
     owner(pet, _, {models}) {
+      console.log(pet);
       return models.User.findOne({id: pet.user})
     },
     img(pet) {

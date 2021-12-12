@@ -6,6 +6,7 @@
     "@apollo/react-hooks": "^3.1.2",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
+    "apollo-client-devtools": "^4.0.0",
     "apollo-link": "^1.2.13",
     "apollo-link-context": "^1.0.19",
     "apollo-link-http": "^1.5.16",
@@ -27,7 +28,8 @@
   "scripts": {
     "server": "node api/src/server.js",
     "app": "parcel client/index.html --out-dir client/dist",
-    "test-server": "jest api/tests"
+    "test-server": "jest api/tests",
+    "start": "react-scripts"
   },
   "browserslist": {
     "production": [
@@ -48,6 +50,6 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "jest": "^24.9.0",
-    "parcel": "^1.12.3"
+    "parcel-bundler": "^1.12.3"
   }
 }
