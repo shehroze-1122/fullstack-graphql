@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import gql from 'graphql-tag'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import PetsList from '../components/PetsList'
@@ -6,29 +6,76 @@ import NewPetModal from '../components/NewPetModal'
 import Loader from '../components/Loader'
 
 
-export default function Pets () {
-  const [modal, setModal] = useState(false)
-
-  const query = gql`
-  query getPets{
-    pets{
-      id
-      type
-      name
-      img
-      createdAt
-    }
+const PET_FIELDS = gql`
+  fragment petFields on Pet{
+    id
+    type
+    name
+    img
+    # directive on the field added locally
+    lifeSpan @client
+    vaccinated @client
   }
-  `
-  const { data, loading, error } = useQuery(query);
+`
+const GET_PETS = gql`
+${PET_FIELDS}
+query getPets{
+  pets{
+    ...petFields
+  }
+}
+`
+
+const ADD_PET = gql`
+  ${PET_FIELDS}
+  mutation addPet($newPet: NewPetInput!){
+    addPet(input: $newPet){
+    ...petFields
+  }
+}
+`
+
+export default function Pets () {
+  const [ modal, setModal ] = useState(false);
+
+  const { data, loading, error } = useQuery(GET_PETS);
+
+  const [ createPet, addPetMeta ] = useMutation(ADD_PET, {
+    
+    update:(cache, { data: { addPet }})=>{
+
+      const { pets } = cache.readQuery({ query: GET_PETS });
+      cache.writeQuery({ query: GET_PETS, data:{ pets: [ addPet, ...pets] }});
+
+    }
+  });
   
-  if(loading){ return <Loader /> }
+
+  if( loading ){ return <Loader /> }
 
   if(error){ return <h2>Error Occurred</h2> }
 
   const onSubmit = input => {
-    setModal(false)
+    setModal(false);
+    createPet({ 
+          variables: { newPet: input },
+          optimisticResponse: {
+            __typename: "Mutation",
+            addPet: {
+              id: "1",
+              type: input.type,
+              name: input.name,
+              img: "https://via.placeholder.com/300",
+              vaccinated: "YES",
+              lifeSpan: "12 years",
+              __typename: "Pet"   
+            }
+          }
+
+    });
   }
+
+
   
   if (modal) {
     return <NewPetModal onSubmit={onSubmit} onCancel={() => setModal(false)} />
